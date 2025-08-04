@@ -1,0 +1,36 @@
+/* Gradient background for the whole page */
+body {
+    background: linear-gradient(135deg, #008DDA, #41C9E2, #ACE2E1, #F7EEDD);
+    background-size: 300% 300%;
+    animation: gradientMove 12s ease infinite;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Animate gradient */
+@keyframes gradientMove {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Card customization */
+.card {
+    background-color: rgba(255, 255, 255, 0.85);
+    border: none;
+    border-radius: 20px;
+}
+
+/* Button customization */
+.btn-custom {
+    background-color: #008DDA;
+    color: white;
+    font-size: 1.2rem;
+    padding: 10px 30px;
+    border-radius: 30px;
+    transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+.btn-custom:hover {
+    background-color: #41C9E2;
+    transform: scale(1.05);
+}
