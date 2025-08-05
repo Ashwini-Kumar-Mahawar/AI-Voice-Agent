@@ -1,4 +1,4 @@
-# 🎙️ 30 Days of AI Voice Agents Challenge – Days 1 to 3
+# 🎙️ 30 Days of AI Voice Agents Challenge – Days 1 to 4
 
 ![Python](https://img.shields.io/badge/Python-3.9%2B-blue?logo=python)
 ![FastAPI](https://img.shields.io/badge/FastAPI-%E2%9C%85-green?logo=fastapi)
@@ -7,17 +7,19 @@
 ![JavaScript](https://img.shields.io/badge/JavaScript-%E2%9C%85-yellow?logo=javascript)
 ![Bootstrap](https://img.shields.io/badge/Bootstrap-5-purple?logo=bootstrap)
 ![License](https://img.shields.io/badge/License-MIT-lightgrey)
-![Status](https://img.shields.io/badge/Progress-Day%203-blue)
+![Status](https://img.shields.io/badge/Progress-Day%204-blue)
 
+A full-stack voice agent app that takes user input, sends it to Murf.ai’s REST Text-to-Speech API, and plays back the generated audio in the browser. Now includes an Echo Bot!  
+Built using FastAPI, HTML/CSS, JavaScript, and Bootstrap.
 
-A full-stack voice agent app that takes user input, sends it to Murf.ai’s REST Text-to-Speech API, and plays back the generated audio in the browser. Built using FastAPI, HTML/CSS, JavaScript, and Bootstrap.
-
+---
 
 ## 📅 Table of Contents
 
 - [Day 1 – Initial Setup](#day-1--initial-setup)
 - [Day 2 – FastAPI + TTS Endpoint](#day-2--fastapi--tts-endpoint)
 - [Day 3 – UI Playback](#day-3--ui-playback)
+- [Day 4 – Echo Bot](#day-4--echo-bot)
 - [🌐 Tech Stack](#-tech-stack)
 - [⚙️ Installation & Usage](#️-installation--usage)
 - [📸 Screenshots](#-screenshots)
@@ -40,11 +42,11 @@ A full-stack voice agent app that takes user input, sends it to Murf.ai’s REST
 - Secured the Murf API key using `.env` file
 
 ### Endpoint:
-  ```bash
-      POST /tts
-      Body: { "text": "Your message here" }
-      Response: { "audio_url": "https://..." }
-  ```
+```bash
+POST /tts
+Body: { "text": "Your message here" }
+Response: { "audio_url": "https://..." }
+```
 
 ---
 
@@ -55,6 +57,21 @@ A full-stack voice agent app that takes user input, sends it to Murf.ai’s REST
   - Bootstrap modal for error handling
   - Audio player to play generated speech
 - Integrated frontend with backend `/tts` endpoint using JavaScript `fetch()`
+
+---
+
+## ✅ Day 4 – Echo Bot
+
+- Added a new section under the TTS UI titled **Echo Bot**
+- Used the **MediaRecorder API** to:
+  - Record user's voice via microphone
+  - Play it back using an `<audio>` element
+- Buttons added:
+  - 🎙️ `Start Recording`
+  - ⏹️ `Stop Recording`
+- Playback happens right after stopping the recording
+
+> No backend logic required for this part — 100% frontend!
 
 ---
 
@@ -97,7 +114,7 @@ pip install fastapi uvicorn python-dotenv requests
 touch .env
 ```
 
-### Paste this in your .env file:
+### Paste this in your `.env` file:
 
 ```bash
 MURF_API_KEY=your_actual_api_key_here
@@ -108,38 +125,40 @@ MURF_API_KEY=your_actual_api_key_here
 ```bash
 uvicorn main:app --reload
 ```
-Visit http://localhost:8000/docs to test the /tts endpoint.
+Visit http://localhost:8000/docs to test the `/tts` endpoint.
 
 ---
 
-### 🌐 Frontend Setup
-- Open index.html in a browser.
-- Enter your text and hit "Generate Audio".
-- The audio will play once ready.
+## 🌐 Frontend Setup
+
+- Open `index.html` in your browser.
+- Enter your text and hit **Generate Audio**.
+- Test out the **Echo Bot** by recording your voice and listening to playback!
 
 ---
 
-### 📸 Screenshots
+## 📸 Screenshots
 
-**🎯 Day 3 UI Preview**
-- ✅ Gradient background
-- ✅ Bootstrap modal on errors
-- ✅ Audio playback with <audio> tag
-  
-  <img width="1264" height="678" alt="Screenshot 2025-08-04 222201" src="https://github.com/user-attachments/assets/eeea6383-3f88-4f04-9a96-5919072be9e6" />
+**🎯 Day 4 UI Preview**
+- ✅ Gradient UI with TTS and Echo Bot
+- ✅ Bootstrap modal
+- ✅ Audio playback via REST TTS and MediaRecorder
 
----
-
-### 🚀 What's Next?
-**📍 Day 4: Record audio from the browser and stream to the backend for speech-to-text conversion.**
+<img width="1914" height="1017" alt="Screenshot 2025-08-05 163834" src="https://github.com/user-attachments/assets/9596ff28-3992-44c5-a0e3-d8d1aaad71c8" />
 
 ---
 
-### 🙌 Challenge
+## 🚀 What's Next?
 
-*This repository is part of the Murf AI 30-Day Voice Agent Challenge.
-Follow my journey as I build, learn, and share every single day!*
+**📍 Day 5**: Sending recorded audio to the backend for speech-to-text processing using Whisper or any ASR API!
 
 ---
 
-### ⭐ If you're also doing this challenge, let's connect!
+## 🙌 Challenge
+
+_This repository is part of the Murf AI 30-Day Voice Agent Challenge._  
+Follow my journey as I build, learn, and share every single day!
+
+---
+
+**⭐ If you're also doing this challenge, let's connect!**
