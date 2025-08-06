@@ -35,7 +35,6 @@ body {
     transform: scale(1.05);
 }
 
-/* Add this to your existing style.css file */
 
 .echo-section {
   margin-top: 40px;
@@ -72,3 +71,4 @@ body {
   display: none;
   width: 100%;
 }
+
