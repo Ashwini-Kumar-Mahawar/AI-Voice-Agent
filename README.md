@@ -20,6 +20,7 @@ Built using FastAPI, HTML/CSS, JavaScript, and Bootstrap.
 - [Day 2 – FastAPI + TTS Endpoint](#day-2--fastapi--tts-endpoint)
 - [Day 3 – UI Playback](#day-3--ui-playback)
 - [Day 4 – Echo Bot](#day-4--echo-bot)
+- [Day 5 – Speech-to-Text Upload](#day-5--speech-to-text-upload)
 - [🌐 Tech Stack](#-tech-stack)
 - [⚙️ Installation & Usage](#️-installation--usage)
 - [📸 Screenshots](#-screenshots)
@@ -72,6 +73,21 @@ Response: { "audio_url": "https://..." }
 - Playback happens right after stopping the recording
 
 > No backend logic required for this part — 100% frontend!
+
+---
+
+## ✅ Day 5 – Speech-to-Text Upload
+- Implemented backend support to accept audio blob via a new FastAPI endpoint /stt
+- Used multipart/form-data to send the recorded audio from frontend to backend
+- Converted blob to a file using JavaScript and uploaded it to the server
+- Set up backend to receive and save audio files for future processing with Whisper or other ASR models
+
+### New Endpoint:
+```bash 
+POST /stt
+FormData: { "audio_file": Blob (webm or wav) }
+Response: { "status": "received", "filename": "filename_saved.wav" }
+```
 
 ---
 
@@ -134,6 +150,7 @@ Visit http://localhost:8000/docs to test the `/tts` endpoint.
 - Open `index.html` in your browser.
 - Enter your text and hit **Generate Audio**.
 - Test out the **Echo Bot** by recording your voice and listening to playback!
+- Now supports uploading recorded audio to the backend!
 
 ---
 
@@ -150,7 +167,7 @@ Visit http://localhost:8000/docs to test the `/tts` endpoint.
 
 ## 🚀 What's Next?
 
-**📍 Day 5**: Sending recorded audio to the backend for speech-to-text processing using Whisper or any ASR API!
+**📍 Day 6**: Integrating Whisper to transcribe the uploaded audio file and return the text to the frontend.
 
 ---
 
