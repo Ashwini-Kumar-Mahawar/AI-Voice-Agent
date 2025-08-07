@@ -185,7 +185,7 @@ Visit http://localhost:8000/docs to test the /tts, /stt, and /transcribe/file en
 - ✅ Upload and transcribe audio with real-time spinner
 - ✅ Backend integrated with AssemblyAI
 
-<img width="1915" height="1016" alt="Screenshot 2025-08-07 215131" src="https://github.com/user-attachments/assets/01319282-b57f-487e-98c6-39990638456f" />
+<img width="1915" height="1016" alt="Screenshot 2025-08-07 215131" src="https://github.com/user-attachments/assets/1025ce4e-7479-43db-bcc8-128c34ae9a14" />
 
 ---
 
