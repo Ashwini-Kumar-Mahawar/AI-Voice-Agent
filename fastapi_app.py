@@ -1,22 +1,28 @@
 import os
 import requests
+import shutil
+from pathlib import Path
+
 from fastapi import FastAPI, File, UploadFile
 from pydantic import BaseModel
 from dotenv import load_dotenv
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
-import shutil
-from pathlib import Path
+
+import assemblyai as aai
 
 # Load environment variables
 load_dotenv()
 MURF_API_KEY = os.getenv("MURF_API_KEY")
+ASSEMBLYAI_API_KEY = os.getenv("ASSEMBLYAI_API_KEY")
+
+# Set up AssemblyAI
+aai.settings.api_key = ASSEMBLYAI_API_KEY
 
 app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://127.0.0.1:5000"],  # Frontend origin
+    allow_origins=["http://127.0.0.1:5000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -60,7 +66,6 @@ def tts_endpoint(input: TextInput):
 async def upload_audio(file: UploadFile = File(...)):
     file_path = os.path.join(UPLOAD_FOLDER, file.filename)
 
-    # ✅ FIX: Use shutil directly without await file.read()
     with open(file_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
 
@@ -71,3 +76,10 @@ async def upload_audio(file: UploadFile = File(...)):
         "content_type": file.content_type,
         "size": os.path.getsize(file_path)
     }
+
+@app.post("/transcribe/file")
+async def transcribe_audio(file: UploadFile = File(...)):
+    audio_data = await file.read()
+    transcriber = aai.Transcriber()
+    transcript = transcriber.transcribe(audio_data)
+    return {"transcript": transcript.text}

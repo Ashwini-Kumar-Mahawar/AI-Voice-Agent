@@ -82,11 +82,30 @@ Response: { "audio_url": "https://..." }
 - Converted blob to a file using JavaScript and uploaded it to the server
 - Set up backend to receive and save audio files for future processing with Whisper or other ASR models
 
-### New Endpoint:
+### Endpoint:
 ```bash 
 POST /stt
 FormData: { "audio_file": Blob (webm or wav) }
 Response: { "status": "received", "filename": "filename_saved.wav" }
+```
+---
+
+## ✅ Day 6 – Transcription using AssemblyAI
+ - Integrated the AssemblyAI Python SDK to perform transcription on uploaded files
+ - Created a new endpoint /transcribe/file that:
+   - Accepts an audio file upload
+   - Uploads the audio to AssemblyAI
+   - Starts and polls the transcription process
+   - Returns the transcribed text to frontend
+ - Updated frontend to:
+   - Display transcribed text below the upload section
+   - Show a spinner while transcription is in progress
+
+### New Endpoint:
+```bash
+POST /transcribe/file
+FormData: { "audio_file": Blob (webm or wav) }
+Response: { "transcription": "Recognized speech here..." }
 ```
 
 ---
@@ -104,9 +123,11 @@ Response: { "status": "received", "filename": "filename_saved.wav" }
 - Uvicorn (ASGI Server)
 - Requests (for REST API calls)
 - `python-dotenv` for environment variable handling
+- assemblyai Python SDK for transcription
 
 **External API:**
 - Murf.ai REST TTS API
+- AssemblyAI Speech-to-Text API
 
 ---
 
@@ -134,6 +155,7 @@ touch .env
 
 ```bash
 MURF_API_KEY=your_actual_api_key_here
+ASSEMBLYAI_API_KEY=your_actual_assemblyai_key_here
 ```
 
 ### Run your FastAPI server:
@@ -141,7 +163,7 @@ MURF_API_KEY=your_actual_api_key_here
 ```bash
 uvicorn main:app --reload
 ```
-Visit http://localhost:8000/docs to test the `/tts` endpoint.
+Visit http://localhost:8000/docs to test the /tts, /stt, and /transcribe/file endpoints.
 
 ---
 
@@ -151,15 +173,16 @@ Visit http://localhost:8000/docs to test the `/tts` endpoint.
 - Enter your text and hit **Generate Audio**.
 - Test out the **Echo Bot** by recording your voice and listening to playback!
 - Now supports uploading recorded audio to the backend!
+- Use Transcribe Audio to upload a file and see the transcribed text.
 
 ---
 
 ## 📸 Screenshots
 
-**🎯 Day 4 UI Preview**
-- ✅ Gradient UI with TTS and Echo Bot
-- ✅ Bootstrap modal
-- ✅ Audio playback via REST TTS and MediaRecorder
+**🎯 Day 6 UI Preview**
+- ✅ Gradient UI with TTS, Echo Bot, and STT
+- ✅ Upload and transcribe audio with real-time spinner
+- ✅ Backend integrated with AssemblyAI
 
 <img width="1914" height="1017" alt="Screenshot 2025-08-05 163834" src="https://github.com/user-attachments/assets/9596ff28-3992-44c5-a0e3-d8d1aaad71c8" />
 
@@ -167,7 +190,7 @@ Visit http://localhost:8000/docs to test the `/tts` endpoint.
 
 ## 🚀 What's Next?
 
-**📍 Day 6**: Integrating Whisper to transcribe the uploaded audio file and return the text to the frontend.
+**📍 Day 7**: Real-time transcription with WebSockets or Streaming API!
 
 ---
 

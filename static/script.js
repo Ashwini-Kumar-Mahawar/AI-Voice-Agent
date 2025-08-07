@@ -1,4 +1,3 @@
-// Day 3 – Text to Speech 
 async function generateAudio() {
   const inputText = document.getElementById("textInput").value;
   const audioPlayer = document.getElementById("audioPlayer");
@@ -32,14 +31,14 @@ async function generateAudio() {
   }
 }
 
-// Day 4 & 5 – Echo Bot with Upload
 let mediaRecorder;
 let audioChunks = [];
 
 const startBtn = document.getElementById("startBtn");
 const stopBtn = document.getElementById("stopBtn");
 const echoAudio = document.getElementById("echoAudio");
-const uploadStatus = document.getElementById("uploadStatus"); // NEW
+const uploadStatus = document.getElementById("uploadStatus");
+const transcriptDisplay = document.getElementById("transcriptionText");
 
 startBtn.addEventListener("click", async () => {
   try {
@@ -61,13 +60,15 @@ startBtn.addEventListener("click", async () => {
       echoAudio.style.display = "block";
       echoAudio.play();
 
-      await uploadAudio(audioBlob); // Upload after playback
+      await uploadAudio(audioBlob);
+      await transcribeAudio(audioBlob);
     };
 
     mediaRecorder.start();
     startBtn.disabled = true;
     stopBtn.disabled = false;
     uploadStatus.textContent = "";
+    transcriptDisplay.textContent = "";
   } catch (error) {
     alert("Microphone access denied or error occurred.");
     console.error(error);
@@ -82,7 +83,6 @@ stopBtn.addEventListener("click", () => {
   }
 });
 
-// Day 5 – Upload audio to server
 async function uploadAudio(blob) {
   const formData = new FormData();
   formData.append("file", blob, "recording.webm");
@@ -105,6 +105,30 @@ async function uploadAudio(blob) {
     }
   } catch (error) {
     uploadStatus.textContent = "An error occurred during upload.";
+    console.error(error);
+  }
+}
+
+async function transcribeAudio(blob) {
+  const formData = new FormData();
+  formData.append("file", blob, "recording.webm");
+
+  try {
+    const response = await fetch("http://127.0.0.1:8000/transcribe/file", {
+      method: "POST",
+      body: formData
+    });
+
+    const data = await response.json();
+
+    if (response.ok && data.transcript) {
+      transcriptDisplay.textContent = "Transcript: " + data.transcript;
+    } else {
+      transcriptDisplay.textContent = "Transcription failed.";
+      console.error(data);
+    }
+  } catch (error) {
+    transcriptDisplay.textContent = "Error during transcription.";
     console.error(error);
   }
 }
