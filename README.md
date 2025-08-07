@@ -7,7 +7,7 @@
 ![JavaScript](https://img.shields.io/badge/JavaScript-%E2%9C%85-yellow?logo=javascript)
 ![Bootstrap](https://img.shields.io/badge/Bootstrap-5-purple?logo=bootstrap)
 ![License](https://img.shields.io/badge/License-MIT-lightgrey)
-![Status](https://img.shields.io/badge/Progress-Day%204-blue)
+![Status](https://img.shields.io/badge/Progress-Day%206-blue)
 
 A full-stack voice agent app that takes user input, sends it to Murf.ai’s REST Text-to-Speech API, and plays back the generated audio in the browser. Now includes an Echo Bot!  
 Built using FastAPI, HTML/CSS, JavaScript, and Bootstrap.
@@ -21,6 +21,7 @@ Built using FastAPI, HTML/CSS, JavaScript, and Bootstrap.
 - [Day 3 – UI Playback](#day-3--ui-playback)
 - [Day 4 – Echo Bot](#day-4--echo-bot)
 - [Day 5 – Speech-to-Text Upload](#day-5--speech-to-text-upload)
+- [Day 6 – Transcription using AssemblyAI](#day-6--transcription-using-assemblyai)
 - [🌐 Tech Stack](#-tech-stack)
 - [⚙️ Installation & Usage](#️-installation--usage)
 - [📸 Screenshots](#-screenshots)
@@ -184,7 +185,7 @@ Visit http://localhost:8000/docs to test the /tts, /stt, and /transcribe/file en
 - ✅ Upload and transcribe audio with real-time spinner
 - ✅ Backend integrated with AssemblyAI
 
-<img width="1914" height="1017" alt="Screenshot 2025-08-05 163834" src="https://github.com/user-attachments/assets/9596ff28-3992-44c5-a0e3-d8d1aaad71c8" />
+<img width="1915" height="1016" alt="Screenshot 2025-08-07 215131" src="https://github.com/user-attachments/assets/01319282-b57f-487e-98c6-39990638456f" />
 
 ---
 
