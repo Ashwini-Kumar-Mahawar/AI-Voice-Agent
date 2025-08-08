@@ -7,9 +7,9 @@
 ![JavaScript](https://img.shields.io/badge/JavaScript-%E2%9C%85-yellow?logo=javascript)
 ![Bootstrap](https://img.shields.io/badge/Bootstrap-5-purple?logo=bootstrap)
 ![License](https://img.shields.io/badge/License-MIT-lightgrey)
-![Status](https://img.shields.io/badge/Progress-Day%204-blue)
+![Status](https://img.shields.io/badge/Progress-Day%207-blue)
 
-A full-stack voice agent app that takes user input, sends it to Murf.ai’s REST Text-to-Speech API, and plays back the generated audio in the browser. Now includes an Echo Bot!  
+A full-stack voice agent app that takes user input, sends it to Murf.ai’s REST Text-to-Speech API, and plays back the generated audio in the browser. Now includes **Echo Bot v2** with real-time transcription + Murf voice playback!  
 Built using FastAPI, HTML/CSS, JavaScript, and Bootstrap.
 
 ---
@@ -21,6 +21,8 @@ Built using FastAPI, HTML/CSS, JavaScript, and Bootstrap.
 - [Day 3 – UI Playback](#day-3--ui-playback)
 - [Day 4 – Echo Bot](#day-4--echo-bot)
 - [Day 5 – Speech-to-Text Upload](#day-5--speech-to-text-upload)
+- [Day 6 – Server-Side Transcription](#day-6--server-side-transcription)
+- [Day 7 – Echo Bot v2 (TTS + Transcript Display)](#day-7--echo-bot-v2-tts--transcript-display)
 - [🌐 Tech Stack](#-tech-stack)
 - [⚙️ Installation & Usage](#️-installation--usage)
 - [📸 Screenshots](#-screenshots)
@@ -101,11 +103,37 @@ Response: { "status": "received", "filename": "filename_saved.wav" }
    - Display transcribed text below the upload section
    - Show a spinner while transcription is in progress
 
-### New Endpoint:
+### Endpoint:
 ```bash
 POST /transcribe/file
 FormData: { "audio_file": Blob (webm or wav) }
 Response: { "transcription": "Recognized speech here..." }
+```
+
+---
+
+## ✅ Day 7 – Echo Bot v2 (TTS + Transcript Display)
+  - Upgraded Echo Bot to use Murf's voice instead of replaying the raw recording
+  - New flow:
+    1. Record audio in browser
+    2. Send audio to /tts/echo endpoint
+    3. Backend transcribes the audio using AssemblyAI
+    4. Sends transcription text to Murf API for TTS generation
+    5. Returns both:
+      - Murf-generated audio URL
+      - Recognized transcription text
+  - Frontend now:
+    - Plays Murf-generated voice in <audio> player
+    - Displays recognized text under the player
+
+### New Endpoint:
+  ```bash 
+  POST /tts/echo
+  FormData: { "audio_file": Blob (webm or wav) }
+  Response: {
+    "transcription": "Recognized speech here...",
+    "audio_url": "https://..."
+  }
 ```
 
 ---
@@ -163,7 +191,7 @@ ASSEMBLYAI_API_KEY=your_actual_assemblyai_key_here
 ```bash
 uvicorn main:app --reload
 ```
-Visit http://localhost:8000/docs to test the /tts, /stt, and /transcribe/file endpoints.
+Visit http://localhost:8000/docs to test the /tts, /stt, /transcribe/file, and /tts/echo endpoints.
 
 ---
 
@@ -171,16 +199,18 @@ Visit http://localhost:8000/docs to test the /tts, /stt, and /transcribe/file en
 
 - Open `index.html` in your browser.
 - Enter your text and hit **Generate Audio**.
-- Test out the **Echo Bot** by recording your voice and listening to playback!
-- Now supports uploading recorded audio to the backend!
-- Use Transcribe Audio to upload a file and see the transcribed text.
+- Use the **Echo Bot v2**:
+    - Record your voice
+    - Hear it back in a Murf AI voice
+    - See the recognized transcription
 
 ---
 
 ## 📸 Screenshots
 
-**🎯 Day 6 UI Preview**
-- ✅ Gradient UI with TTS, Echo Bot, and STT
+**🎯 Day 7 UI Preview**
+- ✅ Gradient UI with TTS, Echo Bot v2, and STT
+- ✅ Murf AI voice playback
 - ✅ Upload and transcribe audio with real-time spinner
 - ✅ Backend integrated with AssemblyAI
 
@@ -190,7 +220,7 @@ Visit http://localhost:8000/docs to test the /tts, /stt, and /transcribe/file en
 
 ## 🚀 What's Next?
 
-**📍 Day 7**: Real-time transcription with WebSockets or Streaming API!
+📍 **Day 8**: Real-time streaming transcription and TTS responses with WebSockets.
 
 ---
 
