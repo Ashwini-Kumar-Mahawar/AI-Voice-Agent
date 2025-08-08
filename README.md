@@ -120,8 +120,8 @@ Response: { "transcription": "Recognized speech here..." }
     3. Backend transcribes the audio using AssemblyAI
     4. Sends transcription text to Murf API for TTS generation
     5. Returns both:
-      - Murf-generated audio URL
-      - Recognized transcription text
+        - Murf-generated audio URL
+        - Recognized transcription text
   - Frontend now:
     - Plays Murf-generated voice in <audio> player
     - Displays recognized text under the player
@@ -214,7 +214,8 @@ Visit http://localhost:8000/docs to test the /tts, /stt, /transcribe/file, and /
 - ✅ Upload and transcribe audio with real-time spinner
 - ✅ Backend integrated with AssemblyAI
 
-<img width="1914" height="1017" alt="Screenshot 2025-08-05 163834" src="https://github.com/user-attachments/assets/9596ff28-3992-44c5-a0e3-d8d1aaad71c8" />
+<img width="1283" height="680" alt="Screenshot 2025-08-08 152757" src="https://github.com/user-attachments/assets/eee15b61-6639-4eaf-8e18-dfd8b27e7376" />
+
 
 ---
 
