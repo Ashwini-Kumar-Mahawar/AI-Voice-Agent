@@ -265,13 +265,14 @@ Visit http://localhost:8000/docs to test the /tts, /stt, /transcribe/file, /tts/
 
 ## 📸 Screenshots
 
-**🎯 Day 7 UI Preview**
-- ✅ Gradient UI with TTS, Echo Bot v2, and STT
-- ✅ Murf AI voice playback
-- ✅ Upload and transcribe audio with real-time spinner
-- ✅ Backend integrated with AssemblyAI
+**🎯 Day 9 UI Preview**
+- ✅ Record → AI Conversation → Hear AI Response
+- ✅ Murf AI voice playback from LLM response
+- ✅ Gemini + AssemblyAI + Murf integrated
+- ✅ Handles long text splitting for TTS
 
-<img width="1914" height="1017" alt="Screenshot 2025-08-05 163834" src="https://github.com/user-attachments/assets/9596ff28-3992-44c5-a0e3-d8d1aaad71c8" />
+<img width="1264" height="679" alt="Screenshot 2025-08-10 220456" src="https://github.com/user-attachments/assets/e4d1fc27-fe84-420c-baa2-8c56010fde09" />
+
 
 ---
 
