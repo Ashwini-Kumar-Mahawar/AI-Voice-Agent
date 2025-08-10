@@ -7,9 +7,10 @@
 ![JavaScript](https://img.shields.io/badge/JavaScript-%E2%9C%85-yellow?logo=javascript)
 ![Bootstrap](https://img.shields.io/badge/Bootstrap-5-purple?logo=bootstrap)
 ![License](https://img.shields.io/badge/License-MIT-lightgrey)
-![Status](https://img.shields.io/badge/Progress-Day%207-blue)
+![Status](https://img.shields.io/badge/Progress-Day%209-blue)
 
-A full-stack voice agent app that takes user input, sends it to Murf.ai’s REST Text-to-Speech API, and plays back the generated audio in the browser. Now includes **Echo Bot v2** with real-time transcription + Murf voice playback!  
+A full-stack voice agent app that takes user input, sends it to Murf.ai’s REST Text-to-Speech API, and plays back the generated audio in the browser.  
+Now includes **Echo Bot v2**, **LLM Integration**, and **Full Voice Conversations**!  
 Built using FastAPI, HTML/CSS, JavaScript, and Bootstrap.
 
 ---
@@ -23,6 +24,8 @@ Built using FastAPI, HTML/CSS, JavaScript, and Bootstrap.
 - [Day 5 – Speech-to-Text Upload](#day-5--speech-to-text-upload)
 - [Day 6 – Server-Side Transcription](#day-6--server-side-transcription)
 - [Day 7 – Echo Bot v2 (TTS + Transcript Display)](#day-7--echo-bot-v2-tts--transcript-display)
+- [Day 8 – LLM Query Endpoint](#day-8--llm-query-endpoint)
+- [Day 9 – Full Non-Streaming Pipeline](#day-9--full-non-streaming-pipeline)
 - [🌐 Tech Stack](#-tech-stack)
 - [⚙️ Installation & Usage](#️-installation--usage)
 - [📸 Screenshots](#-screenshots)
@@ -126,7 +129,7 @@ Response: { "transcription": "Recognized speech here..." }
     - Plays Murf-generated voice in <audio> player
     - Displays recognized text under the player
 
-### New Endpoint:
+### Endpoint:
   ```bash 
   POST /tts/echo
   FormData: { "audio_file": Blob (webm or wav) }
@@ -134,6 +137,57 @@ Response: { "transcription": "Recognized speech here..." }
     "transcription": "Recognized speech here...",
     "audio_url": "https://..."
   }
+```
+---
+
+## ✅ Day 8 – LLM Query Endpoint
+
+- Created a new `/llm/query` endpoint that accepts text input.
+- Integrated with **Google's Gemini API** to process natural language queries.
+- Returns the LLM's text response to the frontend.
+- No UI changes required — tested using FastAPI docs and cURL.
+
+### Endpoint:
+```bash
+POST /llm/query
+Body: { "text": "Your question here" }
+Response: { "llm_response": "Generated response from Gemini..." }
+```
+
+**Setup:**
+- Get a Gemini API key from: https://ai.google.dev/gemini-api/docs/quickstart
+- Store it in `.env` as:
+```bash
+GEMINI_API_KEY=your_gemini_key_here
+```
+
+---
+
+## ✅ Day 9 – Full Non-Streaming Pipeline
+
+- Updated `/llm/query` to accept **audio** instead of only text.
+- New flow:
+  1. User records audio in the browser.
+  2. Audio is sent to `/llm/query`.
+  3. Backend transcribes the audio (AssemblyAI).
+  4. Sends the transcription to Gemini LLM for generating a response.
+  5. Sends the LLM's text to Murf for **Text-to-Speech**.
+  6. Returns both:
+     - `audio_url`: Murf-generated speech
+     - `llm_text`: The LLM's generated text
+  7. UI plays the Murf audio and displays the text.
+
+- Handled Murf's **3000 character limit** by:
+  - Splitting long responses into multiple chunks before sending to TTS.
+
+### Endpoint:
+```bash
+POST /llm/query
+FormData: { "audio_file": Blob (webm or wav) }
+Response: {
+  "llm_text": "The generated AI response...",
+  "audio_url": "https://..."
+}
 ```
 
 ---
@@ -152,10 +206,12 @@ Response: { "transcription": "Recognized speech here..." }
 - Requests (for REST API calls)
 - `python-dotenv` for environment variable handling
 - assemblyai Python SDK for transcription
+- geminiai Python SDK for response
 
 **External API:**
 - Murf.ai REST TTS API
 - AssemblyAI Speech-to-Text API
+- GeminiAI Speech-to-Speech API
 
 ---
 
@@ -184,6 +240,7 @@ touch .env
 ```bash
 MURF_API_KEY=your_actual_api_key_here
 ASSEMBLYAI_API_KEY=your_actual_assemblyai_key_here
+GEMINI_API_KEY=your_actual_gemini_api_key_here
 ```
 
 ### Run your FastAPI server:
@@ -191,7 +248,7 @@ ASSEMBLYAI_API_KEY=your_actual_assemblyai_key_here
 ```bash
 uvicorn main:app --reload
 ```
-Visit http://localhost:8000/docs to test the /tts, /stt, /transcribe/file, and /tts/echo endpoints.
+Visit http://localhost:8000/docs to test the /tts, /stt, /transcribe/file, /tts/echo and /llm/query endpoints.
 
 ---
 
@@ -208,19 +265,18 @@ Visit http://localhost:8000/docs to test the /tts, /stt, /transcribe/file, and /
 
 ## 📸 Screenshots
 
-**🎯 Day 7 UI Preview**
-- ✅ Gradient UI with TTS, Echo Bot v2, and STT
-- ✅ Murf AI voice playback
-- ✅ Upload and transcribe audio with real-time spinner
-- ✅ Backend integrated with AssemblyAI
+**🎯 Day 9 UI Preview**
+- ✅ Record → AI Conversation → Hear AI Response
+- ✅ Murf AI voice playback from LLM response
+- ✅ Gemini + AssemblyAI + Murf integrated
+- ✅ Handles long text splitting for TTS
 
-<img width="1914" height="1017" alt="Screenshot 2025-08-05 163834" src="https://github.com/user-attachments/assets/9596ff28-3992-44c5-a0e3-d8d1aaad71c8" />
+
 
 ---
 
 ## 🚀 What's Next?
-
-📍 **Day 8**: Real-time streaming transcription and TTS responses with WebSockets.
+📍 **Day 10**: Streaming pipeline with WebSockets for real-time responses.
 
 ---
 
