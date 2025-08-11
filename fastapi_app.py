@@ -3,7 +3,7 @@ import re
 import requests
 import shutil
 from pathlib import Path
-from typing import List
+from typing import List, Dict, Any
 
 from fastapi import FastAPI, File, UploadFile
 from fastapi.responses import JSONResponse
@@ -44,6 +44,24 @@ Path(UPLOAD_FOLDER).mkdir(parents=True, exist_ok=True)
 
 # Murf character limit per request
 MURF_MAX_CHARS = 3000
+
+# -----------------------
+# Chat history (in-memory)
+# -----------------------
+# Structure:
+# chat_histories = {
+#   "session_id_abc": [
+#       {"role": "user", "content": "..."},
+#       {"role": "assistant", "content": "..."},
+#       ...
+#    ],
+#    ...
+# }
+# Note: This is an in-memory store; it will reset when server restarts.
+chat_histories: Dict[str, List[Dict[str, str]]] = {}
+
+# Limit how many messages we send to LLM (to keep prompt size reasonable)
+MAX_HISTORY_MESSAGES = 12
 
 
 class TextInput(BaseModel):
@@ -171,7 +189,7 @@ async def llm_query_text(payload: TextInput):
 
 
 # =========================
-#  LLM Query (Audio input) - Day 9: accept audio file, transcribe -> LLM -> Murf TTS (may be multiple chunks)
+#  LLM Query (Audio input) - Day 9 backward-compatible endpoint
 # =========================
 def chunk_text_preserve_sentences(text: str, max_chars: int = MURF_MAX_CHARS) -> List[str]:
     """
@@ -208,13 +226,10 @@ def chunk_text_preserve_sentences(text: str, max_chars: int = MURF_MAX_CHARS) ->
 @app.post("/llm/query/file")
 async def llm_query_file(file: UploadFile = File(...)):
     """
+    Backward-compatible Day 9 audio endpoint (no chat history).
     Accept audio file -> transcribe (AssemblyAI) -> send transcript to Gemini -> split reply and TTS via Murf.
     Returns:
-    {
-      "transcript": "<user transcribed text>",
-      "llm_reply": "<gemini reply text>",
-      "audio_urls": ["https://...mp3", ...]
-    }
+      { "transcript": "<user transcribed text>", "llm_reply": "<gemini reply>", "audio_urls": [...] }
     """
     try:
         # 1) read audio bytes
@@ -228,7 +243,6 @@ async def llm_query_file(file: UploadFile = File(...)):
             return JSONResponse({"error": "Transcription returned empty text."}, status_code=500)
 
         # 3) send transcript to Gemini LLM
-        # You can add a brief system prompt to control verbosity
         prompt = f"You are a helpful assistant. Keep the reply concise and clear. User said: \"{transcript_text}\""
         llm_resp = client.models.generate_content(model="gemini-2.5-flash", contents=prompt)
         llm_text = llm_resp.text.strip() if hasattr(llm_resp, "text") else str(llm_resp)
@@ -261,6 +275,93 @@ async def llm_query_file(file: UploadFile = File(...)):
             audio_urls.append(url)
 
         # 6) Return transcript, llm reply, and list of audio URLs (in order)
+        return {"transcript": transcript_text, "llm_reply": llm_text, "audio_urls": audio_urls}
+
+    except Exception as e:
+        return JSONResponse({"error": str(e)}, status_code=500)
+
+
+# =========================
+#  NEW Day 10: Agent Chat with session history
+# =========================
+@app.post("/agent/chat/{session_id}")
+async def agent_chat(session_id: str, file: UploadFile = File(...)):
+    """
+    Accept audio input, transcribe, append to session history, call Gemini with full session history,
+    append assistant reply to history, TTS reply via Murf (chunks), and return:
+    {
+        "transcript": "<user text>",
+        "llm_reply": "<assistant text>",
+        "audio_urls": [ "...", ... ]
+    }
+    """
+    try:
+        # 1) Read audio bytes and transcribe
+        audio_data = await file.read()
+        transcriber = aai.Transcriber()
+        transcript_obj = transcriber.transcribe(audio_data)
+        transcript_text = transcript_obj.text if transcript_obj else ""
+        if not transcript_text:
+            return JSONResponse({"error": "Transcription returned empty text."}, status_code=500)
+
+        # 2) Ensure session history exists
+        history = chat_histories.setdefault(session_id, [])
+
+        # 3) Append user message to history
+        history.append({"role": "user", "content": transcript_text})
+
+        # Trim history if too long
+        if len(history) > MAX_HISTORY_MESSAGES:
+            history = history[-MAX_HISTORY_MESSAGES:]
+            chat_histories[session_id] = history
+
+        # 4) Build a prompt from history (simple, readable format)
+        system_prompt = "You are a helpful assistant. Keep replies concise and context-aware."
+        convo_lines = [system_prompt, ""]
+        for msg in history:
+            role = msg.get("role", "user")
+            content = msg.get("content", "")
+            if role == "user":
+                convo_lines.append(f"User: {content}")
+            else:
+                convo_lines.append(f"Assistant: {content}")
+        convo_lines.append("")  # separation
+        convo_prompt = "\n".join(convo_lines) + "\nAssistant:"
+
+        # 5) Call Gemini with the prompt
+        llm_resp = client.models.generate_content(model="gemini-2.5-flash", contents=convo_prompt)
+        llm_text = llm_resp.text.strip() if hasattr(llm_resp, "text") else str(llm_resp)
+
+        # 6) Append assistant reply to history
+        history.append({"role": "assistant", "content": llm_text})
+        chat_histories[session_id] = history
+
+        # 7) Convert LLM reply to Murf TTS (chunking if needed)
+        chunks = chunk_text_preserve_sentences(llm_text, max_chars=MURF_MAX_CHARS)
+        murf_api = "https://api.murf.ai/v1/speech/generate"
+        murf_headers = {
+            "accept": "application/json",
+            "content-type": "application/json",
+            "api-key": MURF_API_KEY,
+        }
+
+        audio_urls: List[str] = []
+        for chunk in chunks:
+            payload = {
+                "voiceId": "en-IN-rohan",
+                "text": chunk,
+                "format": "mp3"
+            }
+            r = requests.post(murf_api, json=payload, headers=murf_headers, timeout=60)
+            if r.status_code != 200:
+                return JSONResponse({"error": "Murf TTS failed for a chunk", "details": r.text}, status_code=500)
+            json_data = r.json()
+            url = json_data.get("audioFile")
+            if not url:
+                return JSONResponse({"error": "Murf returned no audio url for a chunk"}, status_code=500)
+            audio_urls.append(url)
+
+        # 8) Return the transcript, LLM reply, and Murf audio URLs
         return {"transcript": transcript_text, "llm_reply": llm_text, "audio_urls": audio_urls}
 
     except Exception as e:

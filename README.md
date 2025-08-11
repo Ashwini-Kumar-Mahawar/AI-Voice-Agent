@@ -7,10 +7,10 @@
 ![JavaScript](https://img.shields.io/badge/JavaScript-%E2%9C%85-yellow?logo=javascript)
 ![Bootstrap](https://img.shields.io/badge/Bootstrap-5-purple?logo=bootstrap)
 ![License](https://img.shields.io/badge/License-MIT-lightgrey)
-![Status](https://img.shields.io/badge/Progress-Day%209-blue)
+![Status](https://img.shields.io/badge/Progress-Day%2010-blue)
 
 A full-stack voice agent app that takes user input, sends it to Murf.ai’s REST Text-to-Speech API, and plays back the generated audio in the browser.  
-Now includes **Echo Bot v2**, **LLM Integration**, and **Full Voice Conversations**!  
+Now includes **Echo Bot v2**, **LLM Integration**, **Full Voice Conversations**, and **Chat History**!  
 Built using FastAPI, HTML/CSS, JavaScript, and Bootstrap.
 
 ---
@@ -26,6 +26,7 @@ Built using FastAPI, HTML/CSS, JavaScript, and Bootstrap.
 - [Day 7 – Echo Bot v2 (TTS + Transcript Display)](#day-7--echo-bot-v2-tts--transcript-display)
 - [Day 8 – LLM Query Endpoint](#day-8--llm-query-endpoint)
 - [Day 9 – Full Non-Streaming Pipeline](#day-9--full-non-streaming-pipeline)
+- [Day 10 – Chat History](#day-10--chat-history)
 - [🌐 Tech Stack](#-tech-stack)
 - [⚙️ Installation & Usage](#️-installation--usage)
 - [📸 Screenshots](#-screenshots)
@@ -192,6 +193,30 @@ Response: {
 
 ---
 
+## ✅ Day 10 – Chat History
+
+- **Goal:** Make the LLM remember what you said before so it can have a real conversation.
+- **How it works:**
+  1. Each conversation has a **session_id**.
+  2. When you send audio, the backend:
+     - Transcribes it (Speech-to-Text)
+     - Saves it to chat history
+     - Sends **all previous messages** + new one to LLM
+     - Gets LLM's reply
+     - Saves reply in chat history
+     - Converts reply to speech (Murf TTS)
+  3. The client plays back the AI's voice and starts listening again automatically.
+
+### Endpoint:
+```http
+POST /agent/chat/{session_id}
+```
+  - Request: Audio file
+  - Response: `{ "transcript": "...", "audio_url": "..." }`
+
+---
+
+
 ## 🌐 Tech Stack
 
 **Frontend:**
@@ -207,6 +232,7 @@ Response: {
 - `python-dotenv` for environment variable handling
 - assemblyai Python SDK for transcription
 - geminiai Python SDK for response
+- SQLite (local storage for chat history) or PostgreSQL (for production-ready persistence)
 
 **External API:**
 - Murf.ai REST TTS API
@@ -265,11 +291,10 @@ Visit http://localhost:8000/docs to test the /tts, /stt, /transcribe/file, /tts/
 
 ## 📸 Screenshots
 
-**🎯 Day 9 UI Preview**
-- ✅ Record → AI Conversation → Hear AI Response
-- ✅ Murf AI voice playback from LLM response
-- ✅ Gemini + AssemblyAI + Murf integrated
-- ✅ Handles long text splitting for TTS
+**🎯 Day 10 Chat UI Preview**
+- ✅ Real-time conversation memory
+- ✅ AI voice playback
+- ✅ Automatic re-recording after AI speaks
 
 <img width="1264" height="679" alt="Screenshot 2025-08-10 220456" src="https://github.com/user-attachments/assets/e4d1fc27-fe84-420c-baa2-8c56010fde09" />
 
@@ -277,7 +302,7 @@ Visit http://localhost:8000/docs to test the /tts, /stt, /transcribe/file, /tts/
 ---
 
 ## 🚀 What's Next?
-📍 **Day 10**: Streaming pipeline with WebSockets for real-time responses.
+📍 **Day 11**: Move chat history from memory to a database for persistence.
 
 ---
 
