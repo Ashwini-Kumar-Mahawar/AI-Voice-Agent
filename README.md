@@ -7,10 +7,10 @@
 ![JavaScript](https://img.shields.io/badge/JavaScript-%E2%9C%85-yellow?logo=javascript)
 ![Bootstrap](https://img.shields.io/badge/Bootstrap-5-purple?logo=bootstrap)
 ![License](https://img.shields.io/badge/License-MIT-lightgrey)
-![Status](https://img.shields.io/badge/Progress-Day%2010-blue)
+![Status](https://img.shields.io/badge/Progress-Day%2011-blue)
 
 A full-stack voice agent app that takes user input, sends it to Murf.ai’s REST Text-to-Speech API, and plays back the generated audio in the browser.  
-Now includes **Echo Bot v2**, **LLM Integration**, **Full Voice Conversations**, and **Chat History**!  
+Now includes **Echo Bot v2**, **LLM Integration**, **Full Voice Conversations**, **Chat History**, and **Error Handling**!  
 Built using FastAPI, HTML/CSS, JavaScript, and Bootstrap.
 
 ---
@@ -27,6 +27,7 @@ Built using FastAPI, HTML/CSS, JavaScript, and Bootstrap.
 - [Day 8 – LLM Query Endpoint](#day-8--llm-query-endpoint)
 - [Day 9 – Full Non-Streaming Pipeline](#day-9--full-non-streaming-pipeline)
 - [Day 10 – Chat History](#day-10--chat-history)
+- [Day 11 – Error Handling](#day-11--error-handling)
 - [🌐 Tech Stack](#-tech-stack)
 - [⚙️ Installation & Usage](#️-installation--usage)
 - [📸 Screenshots](#-screenshots)
@@ -195,24 +196,41 @@ Response: {
 
 ## ✅ Day 10 – Chat History
 
-- **Goal:** Make the LLM remember what you said before so it can have a real conversation.
-- **How it works:**
-  1. Each conversation has a **session_id**.
-  2. When you send audio, the backend:
-     - Transcribes it (Speech-to-Text)
-     - Saves it to chat history
-     - Sends **all previous messages** + new one to LLM
-     - Gets LLM's reply
-     - Saves reply in chat history
-     - Converts reply to speech (Murf TTS)
-  3. The client plays back the AI's voice and starts listening again automatically.
+**Goal:** Store conversation history in a **SQLite database** so that chats remain available even after server restarts.
 
-### Endpoint:
-```http
-POST /agent/chat/{session_id}
-```
-  - Request: Audio file
-  - Response: `{ "transcript": "...", "audio_url": "..." }`
+**What’s New:**
+- Added **SQLite database integration** via `sqlite3` module.
+- Created a `chat_history` table with fields:
+  - `id` (Primary Key)
+  - `session_id`
+  - `role` (`user` or `assistant`)
+  - `message` (text content)
+  - `timestamp`
+- Updated `/agent/chat/{session_id}` endpoint to:
+  - Save each user message and AI reply in the database.
+  - Retrieve entire conversation history from DB for LLM context.
+- Implemented **automatic migration** so table is created if missing.
+
+**Benefits:**
+- Conversations persist after server restarts.
+- Enables analytics and better debugging.
+- Future-proof for switching to **PostgreSQL** in production.
+
+**Example DB Row:**
+| id | session_id | role       | message                  | timestamp           |
+|----|------------|------------|--------------------------|---------------------|
+| 1  | abc123     | user       | "Hello!"                 | 2025-08-11 15:30:20 |
+| 2  | abc123     | assistant  | "Hi there! How can I..."  | 2025-08-11 15:30:21 |
+
+---
+
+## 📅 Day 11 — Error Handling
+
+Today’s update makes our AI Voice Agent more **robust** by adding **error handling** on both the server and client sides.  
+When the STT, LLM, or TTS APIs fail, the system will:
+- Catch the error
+- Log the details
+- Send back a **fallback audio response**: _"I'm having trouble connecting right now."_
 
 ---
 
@@ -233,6 +251,7 @@ POST /agent/chat/{session_id}
 - assemblyai Python SDK for transcription
 - geminiai Python SDK for response
 - SQLite (local storage for chat history) or PostgreSQL (for production-ready persistence)
+- ERROR Handling
 
 **External API:**
 - Murf.ai REST TTS API
@@ -289,12 +308,23 @@ Visit http://localhost:8000/docs to test the /tts, /stt, /transcribe/file, /tts/
 
 ---
 
+## ✨ Features
+- 🎙 Voice recording from browser
+- 📜 Speech-to-text transcription (AssemblyAI)
+- 🗣 Text-to-speech (Murf)
+- 🤖 LLM response (GeminiAI)
+- 💾 **Chat history storage** by session
+- ⚠ **Day 11:** Error handling & fallback audio
+
+---
+
 ## 📸 Screenshots
 
-**🎯 Day 10 Chat UI Preview**
+**🎯 Day 11 Chat UI Preview**
 - ✅ Real-time conversation memory
 - ✅ AI voice playback
 - ✅ Automatic re-recording after AI speaks
+- ✅ ERROR Handling
 
 <img width="1264" height="679" alt="Screenshot 2025-08-10 220456" src="https://github.com/user-attachments/assets/e4d1fc27-fe84-420c-baa2-8c56010fde09" />
 
@@ -302,7 +332,7 @@ Visit http://localhost:8000/docs to test the /tts, /stt, /transcribe/file, /tts/
 ---
 
 ## 🚀 What's Next?
-📍 **Day 11**: Move chat history from memory to a database for persistence.
+📍 **Day 12**: Pushing towards a smoother, more natural multi-turn conversation.
 
 ---
 

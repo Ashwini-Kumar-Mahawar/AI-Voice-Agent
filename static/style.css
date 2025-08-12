@@ -1,74 +1,24 @@
-/* Gradient background for the whole page */
+/* static/style.css - simple visual styles */
 body {
     background: linear-gradient(135deg, #008DDA, #41C9E2, #ACE2E1, #F7EEDD);
     background-size: 300% 300%;
     animation: gradientMove 12s ease infinite;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
-
-/* Animate gradient */
 @keyframes gradientMove {
     0% { background-position: 0% 50%; }
     50% { background-position: 100% 50%; }
     100% { background-position: 0% 50%; }
 }
-
-/* Card customization */
-.card {
-    background-color: rgba(255, 255, 255, 0.85);
-    border: none;
-    border-radius: 20px;
-}
-
-/* Button customization */
-.btn-custom {
-    background-color: #008DDA;
-    color: white;
-    font-size: 1.2rem;
-    padding: 10px 30px;
-    border-radius: 30px;
-    transition: transform 0.3s ease, background-color 0.3s ease;
-}
-
-.btn-custom:hover {
-    background-color: #41C9E2;
-    transform: scale(1.05);
-}
-
-
-.echo-section {
-  margin-top: 40px;
-  padding: 30px;
-  border-top: 2px dashed #008dda;
-  background-color: #f7faff;
-  border-radius: 20px;
-}
-
-.echo-section h1 {
-  font-size: 2rem;
-  color: #008dda;
-  font-weight: 700;
-  margin-bottom: 20px;
-}
-
-.echo-section button {
-  margin: 10px;
-  padding: 10px 20px;
+.card { background-color: rgba(255,255,255,0.9); border-radius: 16px; }
+.btn-custom { background-color: #008DDA; color: white; }
+.chat-history {
+  max-height: 320px;
+  overflow-y: auto;
+  background: #f8fafc;
   border-radius: 10px;
-  font-weight: 500;
-  background-color: #41c9e2;
-  border: none;
-  color: white;
-  transition: background-color 0.3s ease;
+  border: 1px solid #e6eef6;
 }
-
-.echo-section button:hover {
-  background-color: #008dda;
-}
-
-#recordedAudio {
-  margin-top: 20px;
-  display: none;
-  width: 100%;
-}
-
+.chat-message { margin: 8px 0; padding: 8px 12px; border-radius: 8px; }
+.chat-user { background: #e8f3ff; color: #044f8d; text-align: left; }
+.chat-assistant { background: #fff4e6; color: #6b3d00; text-align: left; }
