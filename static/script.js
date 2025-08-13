@@ -1,223 +1,204 @@
-// static/script.js - frontend logic for Day 10 + Day 11 error handling
+// Day 12 UI (with Day 10 history + Day 11 error handling)
+// Backend base URL
+const API = "http://127.0.0.1:8000";
 
-// Helper: get or create session id (stored in query param)
-function getSessionId() {
+// DOM refs
+const chatEl = document.getElementById("chat");
+const recordBtn = document.getElementById("recordBtn");
+const statusText = document.getElementById("statusText");
+const errorBar = document.getElementById("errorBar");
+const audioEl = document.getElementById("replyAudio");
+const sessionIdInput = document.getElementById("sessionIdInput");
+const sessionIdShort = document.getElementById("sessionIdShort");
+
+// Utilities
+function shortId(id){
+  if (!id) return "—";
+  if (id.length <= 8) return id;
+  return `${id.slice(0,4)}…${id.slice(-4)}`;
+}
+
+function getOrCreateSessionId(){
   const url = new URL(window.location.href);
   let sid = url.searchParams.get("session_id");
-  const input = document.getElementById("sessionIdInput");
-  if (!sid) {
-    sid = "sess-" + Math.random().toString(36).slice(2, 9);
+  if (!sid){
+    sid = "sess-" + Math.random().toString(36).slice(2, 10);
     url.searchParams.set("session_id", sid);
     window.history.replaceState({}, "", url.toString());
   }
-  input.value = sid;
-  // update url when user edits manually
-  input.addEventListener("change", () => {
-    const newSid = input.value.trim();
-    if (newSid) {
-      const u = new URL(window.location.href);
-      u.searchParams.set("session_id", newSid);
-      window.history.replaceState({}, "", u.toString());
-      sid = newSid;
-      fetchAndRenderHistory(sid);
-    }
+  sessionIdInput.value = sid;
+  sessionIdShort.textContent = shortId(sid);
+
+  sessionIdInput.addEventListener("change", ()=>{
+    const v = sessionIdInput.value.trim();
+    if (!v) return;
+    const u = new URL(window.location.href);
+    u.searchParams.set("session_id", v);
+    window.history.replaceState({}, "", u.toString());
+    sessionIdShort.textContent = shortId(v);
+    fetchAndRenderHistory(v);
   });
+
   return sid;
 }
 
-const sessionId = getSessionId();
+const SESSION_ID = getOrCreateSessionId();
 
-// Fetch and render chat history
-async function fetchAndRenderHistory(sid) {
-  const el = document.getElementById("chatHistory");
-  el.innerHTML = "Loading...";
-  try {
-    const res = await fetch(`http://127.0.0.1:8000/agent/history/${sid}`);
-    const data = await res.json();
-    el.innerHTML = "";
+// Render helpers
+function addBubble(role, text){
+  const div = document.createElement("div");
+  div.className = `bubble ${role === "user" ? "bubble--user" : "bubble--ai"}`;
+
+  const roleEl = document.createElement("div");
+  roleEl.className = "bubble__role";
+  roleEl.textContent = role === "user" ? "You:" : "AI:";
+
+  const txt = document.createElement("div");
+  txt.className = "bubble__text";
+  txt.textContent = text;
+
+  div.appendChild(roleEl);
+  div.appendChild(txt);
+  chatEl.appendChild(div);
+  chatEl.scrollTop = chatEl.scrollHeight;
+}
+
+function showError(msg){
+  errorBar.textContent = msg;
+  errorBar.hidden = false;
+  setTimeout(()=>{ errorBar.hidden = true; }, 4000);
+}
+
+// Fetch history on load
+async function fetchAndRenderHistory(sid){
+  try{
+    const r = await fetch(`${API}/agent/history/${encodeURIComponent(sid)}`);
+    const data = await r.json();
+    chatEl.innerHTML = "";
     const hist = data.history || [];
-    if (hist.length === 0) {
-      el.innerHTML = "<p class='text-muted'>No messages yet.</p>";
+    if (hist.length === 0){
+      addBubble("ai", "Hi there! Click the mic to start our conversation.");
       return;
     }
-    hist.forEach(m => {
-      const div = document.createElement("div");
-      div.className = "chat-message " + (m.role === "user" ? "chat-user" : "chat-assistant");
-      div.textContent = (m.role === "user" ? "You: " : "Assistant: ") + m.content;
-      el.appendChild(div);
-    });
-    // scroll to bottom
-    el.scrollTop = el.scrollHeight;
-  } catch (err) {
-    el.innerHTML = "<p class='text-danger'>Failed to load history</p>";
-    console.error(err);
+    hist.forEach(m => addBubble(m.role, m.content));
+  }catch(e){
+    showError("Failed to load history");
+    console.error(e);
   }
 }
+fetchAndRenderHistory(SESSION_ID);
 
-// initial render
-fetchAndRenderHistory(sessionId);
+// Recording logic (single toggle)
+let mediaRecorder = null;
+let chunks = [];
+let isRecording = false;
 
-// existing simple TTS generate (unchanged)
-async function generateAudio() {
-  const inputText = document.getElementById("textInput").value;
-  const audioPlayer = document.getElementById("audioPlayer");
-  if (!inputText.trim()) { alert("Please enter some text first."); return; }
-  try {
-    const response = await fetch("http://127.0.0.1:8000/tts", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text: inputText }),
-    });
-    const data = await response.json();
-    if (data.audio_url) {
-      audioPlayer.src = data.audio_url;
-      audioPlayer.style.display = "block";
-      audioPlayer.play();
-    } else {
-      alert("Failed to generate audio. Try again.");
-      console.error(data);
+recordBtn.addEventListener("click", async ()=>{
+  if (!isRecording){
+    // start recording
+    try{
+      const stream = await navigator.mediaDevices.getUserMedia({ audio:true });
+      mediaRecorder = new MediaRecorder(stream);
+      chunks = [];
+
+      mediaRecorder.ondataavailable = (e)=>{
+        if (e.data.size > 0) chunks.push(e.data);
+      };
+      mediaRecorder.onstop = async ()=>{
+        const blob = new Blob(chunks, { type: "audio/webm" });
+        await sendToAgent(blob);
+      };
+
+      mediaRecorder.start();
+      isRecording = true;
+      recordBtn.classList.add("is-recording");
+      statusText.textContent = "Listening… Tap to stop.";
+    }catch(err){
+      console.error(err);
+      showError("Microphone permission denied or not available.");
     }
-  } catch (error) {
-    alert("An error occurred: " + error.message);
-  }
-}
-
-
-// Voice recording + pipeline
-let mediaRecorder;
-let audioChunks = [];
-
-const startBtn = document.getElementById("startBtn");
-const stopBtn = document.getElementById("stopBtn");
-const uploadStatus = document.getElementById("uploadStatus");
-const transcriptionText = document.getElementById("transcriptionText");
-const llmOutput = document.getElementById("llmOutput");
-const llmAudio = document.getElementById("llmAudio");
-
-startBtn.addEventListener("click", async () => {
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    mediaRecorder = new MediaRecorder(stream);
-    audioChunks = [];
-
-    mediaRecorder.ondataavailable = (event) => {
-      if (event.data.size > 0) audioChunks.push(event.data);
-    };
-
-    mediaRecorder.onstop = async () => {
-      const blob = new Blob(audioChunks, { type: "audio/webm" });
-      uploadStatus.textContent = "Processing (STT → LLM → TTS)...";
-      transcriptionText.textContent = "";
-      llmOutput.textContent = "";
-      await sendAudioToAgent(blob);
-    };
-
-    mediaRecorder.start();
-    startBtn.disabled = true;
-    stopBtn.disabled = false;
-  } catch (err) {
-    alert("Microphone access denied or error occurred.");
-    console.error(err);
+  }else{
+    // stop recording
+    if (mediaRecorder && mediaRecorder.state !== "inactive") {
+      mediaRecorder.stop();
+    }
+    isRecording = false;
+    recordBtn.classList.remove("is-recording");
+    statusText.textContent = "Processing response…";
   }
 });
 
-stopBtn.addEventListener("click", () => {
-  if (mediaRecorder && mediaRecorder.state !== "inactive") {
-    mediaRecorder.stop();
-    startBtn.disabled = false;
-    stopBtn.disabled = true;
-  }
-});
+// Core: send audio to backend agent and handle response + errors
+async function sendToAgent(blob){
+  const sid = sessionIdInput.value.trim() || SESSION_ID;
+  const form = new FormData();
+  form.append("file", blob, "recording.webm");
 
-// send audio to /agent/chat/{session_id}
-async function sendAudioToAgent(blob) {
-  const sid = document.getElementById("sessionIdInput").value.trim() || sessionId;
-  const formData = new FormData();
-  formData.append("file", blob, "recording.webm");
-
-  try {
-    const resp = await fetch(`http://127.0.0.1:8000/agent/chat/${encodeURIComponent(sid)}`, {
-      method: "POST",
-      body: formData
+  try{
+    const resp = await fetch(`${API}/agent/chat/${encodeURIComponent(sid)}`, {
+      method:"POST",
+      body: form
     });
-
     const data = await resp.json();
 
-    if (!resp.ok) {
-      console.error("Agent endpoint error:", data);
-      uploadStatus.textContent = "Processing failed.";
-      transcriptionText.textContent = data.transcript || "";
-      llmOutput.textContent = data.llm_reply || "Error";
-      // if audio_urls present, play fallback/returned audio
-      if (data.audio_urls && data.audio_urls.length > 0) {
-        playAudioUrlsSequentially(data.audio_urls, true /* auto-record when done? false here */);
+    // Always show user message if we got a transcript
+    if (data.transcript){
+      addBubble("user", data.transcript);
+    }
+
+    if (!resp.ok){
+      if (data.llm_reply) addBubble("ai", data.llm_reply);
+      showError(data.error || "Failed to process your request.");
+      // play any fallback audio if present
+      if (Array.isArray(data.audio_urls) && data.audio_urls.length){
+        await playSequential(data.audio_urls, false);
       }
       // refresh history
       fetchAndRenderHistory(sid);
+      statusText.textContent = "Tap the mic to try again.";
       return;
     }
 
-    // success path
-    transcriptionText.textContent = data.transcript || "";
-    llmOutput.textContent = data.llm_reply || "";
-    if (data.audio_urls && data.audio_urls.length > 0) {
-      // Play sequentially and after playback restart recording automatically
-      playAudioUrlsSequentially(data.audio_urls, /*autoRecordOnEnd=*/true);
-    } else {
-      uploadStatus.textContent = "No audio returned.";
+    // Success: render AI text + play audio
+    if (data.llm_reply) addBubble("ai", data.llm_reply);
+
+    if (Array.isArray(data.audio_urls) && data.audio_urls.length){
+      await playSequential(data.audio_urls, true); // auto restart listening after playback
+    }else{
+      statusText.textContent = "No audio returned.";
     }
-    // refresh history view
+
+    // Refresh history list (server may have trimmed)
     fetchAndRenderHistory(sid);
 
-  } catch (err) {
-    console.error("Network error:", err);
-    uploadStatus.textContent = "Network error during processing.";
+  }catch(e){
+    console.error(e);
+    showError("Network error while contacting the server.");
+    statusText.textContent = "Tap the mic to try again.";
   }
 }
 
-function playAudioUrlsSequentially(urls, autoRecordOnEnd = false) {
-  llmAudio.style.display = "block";
-  let idx = 0;
-  llmAudio.onended = function () {
-    idx++;
-    if (idx < urls.length) {
-      llmAudio.src = urls[idx];
-      llmAudio.play();
-    } else {
-      uploadStatus.textContent = "Playback finished.";
-      llmAudio.onended = null;
-      if (autoRecordOnEnd) {
-        // start recording automatically after a short delay
-        setTimeout(() => {
-          startBtn.click();
-        }, 600);
+// Play a list of URLs back-to-back; optionally auto-start recording after
+function playSequential(urls, autoRecordAfter){
+  return new Promise(resolve=>{
+    let i = 0;
+    audioEl.onended = async ()=>{
+      i++;
+      if (i < urls.length){
+        audioEl.src = urls[i];
+        audioEl.play();
+      }else{
+        audioEl.onended = null;
+        statusText.textContent = "Your turn. Tap the mic to speak.";
+        if (autoRecordAfter){
+          // give a tiny pause then start listening again
+          setTimeout(()=>recordBtn.click(), 800);
+        }
+        resolve();
       }
-    }
-  };
-  llmAudio.src = urls[0];
-  llmAudio.play();
-  uploadStatus.textContent = "Playing reply...";
-}
-
-// LLM text query (kept)
-async function sendLLMQuery() {
-  const query = document.getElementById("llmInput").value;
-  const out = document.getElementById("llmOutput");
-  if (!query.trim()) { alert("Please enter a question or prompt."); return; }
-  out.textContent = "Thinking...";
-  try {
-    const resp = await fetch("http://127.0.0.1:8000/llm/query", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text: query })
-    });
-    const data = await resp.json();
-    if (resp.ok && data.reply) {
-      out.textContent = data.reply;
-    } else {
-      out.textContent = "Error: " + (data.error || "Unknown error");
-    }
-  } catch (err) {
-    out.textContent = "Network error: " + err.message;
-  }
+    };
+    audioEl.src = urls[0];
+    audioEl.play();
+    statusText.textContent = "Playing response…";
+  });
 }

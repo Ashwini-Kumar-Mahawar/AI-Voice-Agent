@@ -7,7 +7,7 @@
 ![JavaScript](https://img.shields.io/badge/JavaScript-%E2%9C%85-yellow?logo=javascript)
 ![Bootstrap](https://img.shields.io/badge/Bootstrap-5-purple?logo=bootstrap)
 ![License](https://img.shields.io/badge/License-MIT-lightgrey)
-![Status](https://img.shields.io/badge/Progress-Day%2011-blue)
+![Status](https://img.shields.io/badge/Progress-Day%2012-blue)
 
 A full-stack voice agent app that takes user input, sends it to Murf.ai’s REST Text-to-Speech API, and plays back the generated audio in the browser.  
 Now includes **Echo Bot v2**, **LLM Integration**, **Full Voice Conversations**, **Chat History**, and **Error Handling**!  
@@ -28,6 +28,7 @@ Built using FastAPI, HTML/CSS, JavaScript, and Bootstrap.
 - [Day 9 – Full Non-Streaming Pipeline](#day-9--full-non-streaming-pipeline)
 - [Day 10 – Chat History](#day-10--chat-history)
 - [Day 11 – Error Handling](#day-11--error-handling)
+- [Day 12 – UI Revamp](#day-12--ui-revamp)
 - [🌐 Tech Stack](#-tech-stack)
 - [⚙️ Installation & Usage](#️-installation--usage)
 - [📸 Screenshots](#-screenshots)
@@ -224,7 +225,7 @@ Response: {
 
 ---
 
-## 📅 Day 11 — Error Handling
+## ✅ Day 11 — Error Handling
 
 Today’s update makes our AI Voice Agent more **robust** by adding **error handling** on both the server and client sides.  
 When the STT, LLM, or TTS APIs fail, the system will:
@@ -234,6 +235,26 @@ When the STT, LLM, or TTS APIs fail, the system will:
 
 ---
 
+## ✅ Day 12 – UI Revamp
+
+Today’s update was all about making the **Conversational Agent UI** cleaner, more modern, and more intuitive.  
+The aim was to simplify interactions while still keeping **Chat History (Day 10)** and **Error Handling (Day 11)** intact.
+
+**What’s New:**
+- Removed **initial Text-to-Speech** and **Echo Bot** sections — now only the conversational agent interface is shown.
+- Replaced the separate **Start** / **Stop Recording** buttons with **one smart record button** that:
+  - Changes label & icon depending on recording state
+  - Shows an animation when active
+- Audio now **auto-plays** as soon as it’s loaded — the audio player UI can be hidden for a cleaner look.
+- Record button styling updated to be **more prominent** with hover & active effects.
+
+**Benefits:**
+- Minimal distractions — only what’s needed for smooth AI conversations is visible.
+- More intuitive recording workflow with a single, state-aware button.
+- Polished look with animations for better user feedback.
+
+
+---
 
 ## 🌐 Tech Stack
 
@@ -320,11 +341,12 @@ Visit http://localhost:8000/docs to test the /tts, /stt, /transcribe/file, /tts/
 
 ## 📸 Screenshots
 
-**🎯 Day 11 Chat UI Preview**
+**🎯 Day 12 Chat UI Preview**
 - ✅ Real-time conversation memory
 - ✅ AI voice playback
 - ✅ Automatic re-recording after AI speaks
 - ✅ ERROR Handling
+- ✅ UI Revamp
 
 <img width="1264" height="679" alt="Screenshot 2025-08-10 220456" src="https://github.com/user-attachments/assets/e4d1fc27-fe84-420c-baa2-8c56010fde09" />
 
@@ -332,7 +354,7 @@ Visit http://localhost:8000/docs to test the /tts, /stt, /transcribe/file, /tts/
 ---
 
 ## 🚀 What's Next?
-📍 **Day 12**: Pushing towards a smoother, more natural multi-turn conversation.
+📍 **Day 13**: Pushing towards a smoother, more natural multi-turn conversation.
 
 ---
 

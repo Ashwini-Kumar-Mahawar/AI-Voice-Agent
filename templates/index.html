@@ -3,73 +3,57 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Day 10 – Voice Agent with Chat History</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <title>My Assistant AI</title>
   <link rel="stylesheet" href="static/style.css" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-  <div class="container mt-5">
-    <div class="card shadow p-4 rounded-4">
-      <div class="d-flex justify-content-between align-items-center">
-        <h1 class="text-primary fw-bold">30 Days of Voice Agents</h1>
-        <div>
-          <label class="form-label me-2">Session ID</label>
-          <input id="sessionIdInput" class="form-control d-inline-block" style="width:220px" />
+  <main class="page">
+    <section class="card">
+      <!-- Gradient header -->
+      <header class="card__header">
+        <h1 class="card__title">AI VOICE AGENT</h1>
+        <div class="card__subtitle">
+          Session ID: <span id="sessionIdShort">—</span>
         </div>
-      </div>
+      </header>
 
-      <p class="lead">Day 10: Chat History + Robust Error Handling</p>
+      <!-- Conversation area -->
+      <section class="card__body">
+        <div id="chat" class="chat">
+          <!-- Example welcome from AI -->
+          <div class="bubble bubble--ai">
+            <div class="bubble__role">MURF AI:</div>
+            <div class="bubble__text">Hi there! Click the mic to start our conversation.</div>
+          </div>
+        </div>
+      </section>
 
-      <!-- Text to Speech Section -->
-      <div class="mb-3">
-        <input type="text" id="textInput" class="form-control" placeholder="Enter text to convert to speech"/>
-      </div>
-      <button class="btn btn-custom mb-4" onclick="generateAudio()">Generate Audio</button>
-
-      <div class="mb-4">
-        <audio id="audioPlayer" controls style="width: 100%; display: none;"></audio>
-      </div>
-
-      <!-- Echo Bot Section -->
-      <h3 class="text-success fw-bold mt-3">Echo Bot + LLM (Voice)</h3>
-      <p class="lead">Record → Transcribe → LLM → Murf TTS → Play (chat history preserved)</p>
-
-      <div class="mb-3">
-        <button id="startBtn" class="btn btn-outline-primary m-2">Start Recording</button>
-        <button id="stopBtn" class="btn btn-outline-danger m-2" disabled>Stop Recording</button>
-      </div>
-
-      <div class="mt-3">
-        <audio id="llmAudio" controls style="width: 100%; display: none;"></audio>
-        <p id="uploadStatus" class="mt-3 text-info fw-semibold"></p>
-      </div>
-
-      <div class="row mt-4">
-        <div class="col-md-6">
-          <h5 class="text-secondary">Transcription Output:</h5>
-          <p id="transcriptionText" class="text-dark fw-semibold"></p>
-
-          <h5 class="text-secondary mt-4">LLM Output:</h5>
-          <p id="llmOutput" class="text-dark fw-semibold"></p>
+      <!-- Footer with mic + status -->
+      <footer class="card__footer">
+        <div class="footer__status">
+          <span id="statusText">Here is my response:</span>
         </div>
 
-        <div class="col-md-6">
-          <h5 class="text-secondary">Chat History:</h5>
-          <div id="chatHistory" class="chat-history p-3"></div>
-        </div>
-      </div>
+        <div class="controls">
+          <button id="recordBtn" class="mic" aria-label="Record">
+            <span class="mic__icon">🎤</span>
+            <span class="mic__dot"></span>
+          </button>
 
-      <!-- LLM text query (kept) -->
-      <hr/>
-      <h5 class="mt-3">Ask Gemini (text)</h5>
-      <div class="mb-3">
-        <input type="text" id="llmInput" class="form-control" placeholder="Ask something..."/>
-      </div>
-      <button class="btn btn-warning mb-3" onclick="sendLLMQuery()">Ask Gemini</button>
-    </div>
-  </div>
+         <input id="sessionIdInput" class="session-input" spellcheck="false" />
+        </div>
+
+        <!-- Hidden audio (auto-plays) -->
+        <audio id="replyAudio" style="display:none;"></audio>
+
+        <!-- Error bar -->
+        <div id="errorBar" class="error" hidden></div>
+      </footer>
+    </section>
+  </main>
 
   <script src="static/script.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
