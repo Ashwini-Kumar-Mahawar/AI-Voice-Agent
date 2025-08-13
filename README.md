@@ -1,4 +1,4 @@
-# 🎙️ 30 Days of AI Voice Agents Challenge – Days 1 to 4
+# 🎙️ 30 Days of AI Voice Agents Challenge – Days 1 to 12
 
 ![Python](https://img.shields.io/badge/Python-3.9%2B-blue?logo=python)
 ![FastAPI](https://img.shields.io/badge/FastAPI-%E2%9C%85-green?logo=fastapi)
@@ -348,7 +348,7 @@ Visit http://localhost:8000/docs to test the /tts, /stt, /transcribe/file, /tts/
 - ✅ ERROR Handling
 - ✅ UI Revamp
 
-<img width="1264" height="679" alt="Screenshot 2025-08-10 220456" src="https://github.com/user-attachments/assets/e4d1fc27-fe84-420c-baa2-8c56010fde09" />
+<img width="1276" height="675" alt="Screenshot 2025-08-13 224555" src="https://github.com/user-attachments/assets/630b6e84-fc6c-4e21-a6c0-4072eb66e86c" />
 
 
 ---
