@@ -3,6 +3,7 @@ import os
 import re
 import requests
 import traceback
+import assemblyai as aai
 from pathlib import Path
 from typing import List, Dict
 
@@ -11,9 +12,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from dotenv import load_dotenv
-
-import assemblyai as aai
 from google import genai  # Gemini client
+from fastapi import FastAPI, WebSocket
+import logging
 
 # ---------- Config & Clients ----------
 load_dotenv()
@@ -44,6 +45,29 @@ UPLOADS.mkdir(exist_ok=True)
 
 MURF_MAX_CHARS = 3000
 FALLBACK_TEXT = "I'm having trouble connecting right now. Please try again in a moment."
+
+# Setup logging
+logging.basicConfig(level=logging.INFO)
+
+@app.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    # Accept the connection
+    await websocket.accept()
+    logging.info("WebSocket connection established")
+
+    try:
+        while True:
+            # Receive message from client
+            data = await websocket.receive_text()
+            logging.info(f"Received message: {data}")
+
+            # Echo it back
+            await websocket.send_text(f"Echo: {data}")
+
+    except Exception as e:
+        logging.error(f"WebSocket connection closed: {e}")
+
+
 
 # Day 10: simple in-memory history
 # { session_id: [{"role":"user","content":"..."}, {"role":"assistant","content":"..."}] }
