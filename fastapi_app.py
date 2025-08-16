@@ -12,6 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from dotenv import load_dotenv
+import assemblyai as aai
 from google import genai  # Gemini client
 from fastapi import FastAPI, WebSocket
 import logging
